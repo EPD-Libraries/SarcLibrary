@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using static SarcLibrary.SarcHelper;
 
 namespace SarcLibrary;
 
@@ -23,7 +22,7 @@ public class SarcFile : Dictionary<string, byte[]>
 
         Span<byte> sarc = stackalloc byte[4];
         stream.Read(sarc);
-        if (!sarc.SequenceEqual(SARC)) {
+        if (!sarc.SequenceEqual(SarcHelper.SARC)) {
             throw new InvalidDataException("Invalid SARC magic");
         }
 
@@ -70,11 +69,11 @@ public class SarcFile : Dictionary<string, byte[]>
             Span<byte> stringTableBuffer = reader.ReadBytes((int)(dataOffset - stream.Position)).AsSpan();
             for (int i = 0; i < count; i++) {
                 if (i == count - 1) {
-                    Add(Encoding.UTF8.GetString(stringTableBuffer[nodes[i].StringOffset..]).Replace(Null, Empty),
+                    Add(Encoding.UTF8.GetString(stringTableBuffer[nodes[i].StringOffset..]).Replace(SarcHelper.Null, SarcHelper.Empty),
                        reader.ReadBytes(nodes[i].DataEnd - nodes[i].DataStart));
                 }
                 else {
-                    Add(Encoding.UTF8.GetString(stringTableBuffer[nodes[i].StringOffset..nodes[i + 1].StringOffset]).Replace(Null, Empty),
+                    Add(Encoding.UTF8.GetString(stringTableBuffer[nodes[i].StringOffset..nodes[i + 1].StringOffset]).Replace(SarcHelper.Null, SarcHelper.Empty),
                        reader.ReadBytes(nodes[i].DataEnd - nodes[i].DataStart));
                     stream.Seek(nodes[i + 1].DataStart - nodes[i].DataEnd, SeekOrigin.Current);
                 }
@@ -84,7 +83,7 @@ public class SarcFile : Dictionary<string, byte[]>
             stream.Seek(dataOffset, SeekOrigin.Begin);
             for (int i = 0; i < count; i++) {
                 byte[] buffer = reader.ReadBytes(nodes[i].DataEnd - nodes[i].DataStart);
-                Add($"{nodes[i].Hash:x8}.{GuessFileExtension(buffer)}", buffer);
+                Add($"{nodes[i].Hash:x8}.{SarcHelper.GuessFileExtension(buffer)}", buffer);
 
                 if (i != count - 1) {
                     stream.Seek(nodes[i + 1].DataStart - nodes[i].DataEnd, SeekOrigin.Current);
@@ -128,10 +127,10 @@ public class SarcFile : Dictionary<string, byte[]>
         using BinaryWriter writer = new(stream);
 
         // Allocate sorted keys/values
-        string[] fileNames = Keys.ToArray();
+        string[] fileNames = [.. Keys];
         uint[] keys = new uint[Count];
         for (int i = 0; i < Count; i++) {
-            keys[i] = GetHash(fileNames[i]);
+            keys[i] = SarcHelper.GetHash(fileNames[i]);
         }
 
         Array.Sort(keys, fileNames);
@@ -139,10 +138,10 @@ public class SarcFile : Dictionary<string, byte[]>
         stream.Seek(0x14, SeekOrigin.Begin);
 
         // Write data nodes (SFAT)
-        writer.Write(SFAT);
+        writer.Write(SarcHelper.SFAT);
         writer.Write(0x0C.AsInt16(Endian));
         writer.Write(Count.AsInt16(Endian));
-        writer.Write(HashKey.AsUInt32(Endian));
+        writer.Write(SarcHelper.HashKey.AsUInt32(Endian));
 
         Span<int> alignments = stackalloc int[Count];
         int relStringOffset = 0;
@@ -153,7 +152,7 @@ public class SarcFile : Dictionary<string, byte[]>
 
             // Calculate data and string offsets
             Span<byte> buffer = this[fileName].AsSpan();
-            int alignment = GetFileAlignment(fileName, buffer, this);
+            int alignment = SarcHelper.GetFileAlignment(fileName, buffer, this);
             int dataStart = relDataOffset.Align(alignment);
             int dataEnd = dataStart + buffer.Length;
             alignments[i] = alignment;
@@ -165,11 +164,11 @@ public class SarcFile : Dictionary<string, byte[]>
 
             relDataOffset = dataEnd;
             relStringOffset += (fileName.Length + 4) & -4;
-            fileAlignment = LCM(fileAlignment, alignment);
+            fileAlignment = SarcHelper.LCM(fileAlignment, alignment);
         }
 
         // Write string table (SFNT)
-        writer.Write(SFNT);
+        writer.Write(SarcHelper.SFNT);
         writer.Write(0x08.AsInt16(Endian));
         writer.Write((ushort)0x00);
 
@@ -192,7 +191,7 @@ public class SarcFile : Dictionary<string, byte[]>
         int fileSize = (int)stream.Position;
 
         stream.Seek(0, SeekOrigin.Begin);
-        writer.Write(SARC);
+        writer.Write(SarcHelper.SARC);
         writer.Write(0x14.AsInt16(Endian));
         writer.Write((ushort)Endian);
         writer.Write(fileSize.AsInt32(Endian));
@@ -212,7 +211,7 @@ public class SarcFile : Dictionary<string, byte[]>
 
     public static SarcFile LoadFromDirectory(string directory, Func<string, byte[], byte[]>? operation = null, string searchPattern = "*.*", SearchOption searchOption = SearchOption.AllDirectories)
     {
-        SarcFile sarc = new();
+        SarcFile sarc = [];
         foreach (var file in Directory.GetFiles(directory, searchPattern, searchOption)) {
             byte[] data = File.ReadAllBytes(file);
             string name = Path.GetRelativePath(directory, file).Replace('\\', '/');

@@ -6,11 +6,11 @@ namespace SarcLibrary;
 [Obsolete("Use SarcLibrary.Sarc or SarcLibrary.ImmutableSarc instead.")]
 public static partial class SarcHelper
 {
-    internal static readonly byte[] SARC = { 0x53, 0x41, 0x52, 0x43 };
-    internal static readonly byte[] SFAT = { 0x53, 0x46, 0x41, 0x54 };
-    internal static readonly byte[] SFNT = { 0x53, 0x46, 0x4E, 0x54 };
-    internal static readonly byte[] FLIM = { 0x46, 0x4C, 0x49, 0x4D };
-    internal static readonly byte[] YAZ0 = { 0x59, 0x41, 0x5A, 0x30 };
+    internal static readonly byte[] SARC = [0x53, 0x41, 0x52, 0x43];
+    internal static readonly byte[] SFAT = [0x53, 0x46, 0x41, 0x54];
+    internal static readonly byte[] SFNT = [0x53, 0x46, 0x4E, 0x54];
+    internal static readonly byte[] FLIM = [0x46, 0x4C, 0x49, 0x4D];
+    internal static readonly byte[] YAZ0 = [0x59, 0x41, 0x5A, 0x30];
 
     internal const string Null = "\x00";
     internal const string Empty = "";
@@ -19,7 +19,7 @@ public static partial class SarcHelper
     internal const uint HashKey = 0x65;
     internal const int MinAlignment = 4;
 
-    private static readonly Regex RegexAZ = CompiledRegexAZ();
+    private static readonly Regex RegexAZ = SarcHelper.CompiledRegexAZ();
 
     private static readonly Dictionary<string, string> FileExtensions = new() {
         { "AAHS", ".sharc" }, { "AAMP", ".aamp" }, { "BAHS", ".sharcb" },
@@ -49,7 +49,7 @@ public static partial class SarcHelper
         { "gtx", 0x2000 }
     };
 
-    private static readonly string[] BotwFactoryNames = {
+    private static readonly string[] BotwFactoryNames = [
         "sarc", "bfres", "bcamanim", "batpl, bnfprl", "bplacement",
         "hks, lua", "bactcapt", "bitemico", "jpg", "bmaptex",
         "bstftex", "bgdata", "bgsvdata", "hknm2", "bmscdef", "bars",
@@ -59,7 +59,7 @@ public static partial class SarcHelper
         "brecipe", "blod", "bbonectrl", "blifecondition", "bumii", "baniminfo",
         "byaml", "bassetting", "hkrb", "hkrg", "bphyssb", "hkcl", "hksc",
         "hktmrb", "brgcon", "esetlist", "bdemo", "bfevfl", "bfevtm"
-    };
+    ];
 
     public static string GuessFileExtension(ReadOnlySpan<byte> data)
     {
@@ -99,20 +99,20 @@ public static partial class SarcHelper
         string ext = Path.GetExtension(name).Remove(0, 1);
 
         if (ext == BFFNT) {
-            alignment = LCM(alignment, sarc.Endian == Endian.Big ? 0x2000 : 0x1000);
+            alignment = SarcHelper.LCM(alignment, sarc.Endian == Endian.Big ? 0x2000 : 0x1000);
         }
         else if (FileAlignments.TryGetValue(ext, out int fetchedAlignment)) {
-            alignment = LCM(alignment, fetchedAlignment);
+            alignment = SarcHelper.LCM(alignment, fetchedAlignment);
         }
 
         if (sarc.Legacy && (data[0x00..0x04].SequenceEqual(SARC) || data[0x00..0x04].SequenceEqual(YAZ0) && data[0x11..0x15].SequenceEqual(SARC))) {
-            alignment = LCM(alignment, 0x2000);
+            alignment = SarcHelper.LCM(alignment, 0x2000);
         }
 
         if (sarc.Legacy || Array.IndexOf(BotwFactoryNames, ext) == -1) {
-            alignment = LCM(alignment, GetBinaryFileAlignment(data));
+            alignment = SarcHelper.LCM(alignment, SarcHelper.GetBinaryFileAlignment(data));
             if (sarc.Endian == Endian.Big) {
-                alignment = LCM(alignment, GetCafeBflimAlignment(data));
+                alignment = SarcHelper.LCM(alignment, SarcHelper.GetCafeBflimAlignment(data));
             }
         }
 
@@ -135,7 +135,7 @@ public static partial class SarcHelper
 
     public static int LCM(int a, int b)
     {
-        return a / GCD(a, b) * b;
+        return a / SarcHelper.GCD(a, b) * b;
     }
 
     public static uint GetHash(ReadOnlySpan<char> name)
