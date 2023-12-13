@@ -2,7 +2,7 @@
   "profiles": {
     "SarcLibrary.Runner": {
       "commandName": "Project",
-      "commandLineArgs": "\"D:\\bin\\Sarc\\Test.pack\""
+      "commandLineArgs": "\"D:\\bin\\Sarc\\TitleBG-LE.pack\""
     }
   }
 }
