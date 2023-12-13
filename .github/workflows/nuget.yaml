@@ -12,7 +12,7 @@ env:
   description: |-
     Modern SEAD/SEPD archive reader written in managed C#
   readme: ./Readme.md
-  icon: ./icon.png
+  icon: ./Icon.png
   repo: https://github.com/EPD-Libraries/SarcLibrary
   spdx: AGPL-3.0-or-later
   tags: sarc;archive;zeldamods;message-studio;totk;botw
