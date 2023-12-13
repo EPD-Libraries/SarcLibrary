@@ -10,29 +10,30 @@ public class SarcBenchmarks
     private readonly Sarc _sarcLE = Sarc.FromBinary(File.ReadAllBytes(@"D:\bin\Sarc\TitleBG-LE.pack"));
     private readonly Sarc _sarcBE = Sarc.FromBinary(File.ReadAllBytes(@"D:\bin\Sarc\TitleBG-BE.pack"));
 
+    private readonly MemoryStream _sarcMsLE = new();
+    private readonly MemoryStream _sarcMsBE = new();
+
     [Benchmark]
     public void Read_LE()
     {
-        Sarc sarc = Sarc.FromBinary(_bufferLE);
+        Sarc _ = Sarc.FromBinary(_bufferLE);
     }
 
     [Benchmark]
     public void Read_BE()
     {
-        Sarc sarc = Sarc.FromBinary(_bufferBE);
+        Sarc _ = Sarc.FromBinary(_bufferBE);
     }
 
     [Benchmark]
     public void Write_LE()
     {
-        using MemoryStream ms = new();
-        _sarcLE.Write(ms);
+        _sarcLE.Write(_sarcMsLE);
     }
 
     [Benchmark]
     public void Write_BE()
     {
-        using MemoryStream ms = new();
-        _sarcBE.Write(ms);
+        _sarcBE.Write(_sarcMsBE);
     }
 }

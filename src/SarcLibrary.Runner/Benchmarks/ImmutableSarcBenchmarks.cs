@@ -13,13 +13,13 @@ public class ImmutableSarcBenchmarks
     public void Read_LE()
     {
         RevrsReader reader = new(_bufferLE);
-        ImmutableSarc sarc = new(ref reader);
+        ImmutableSarc _ = new(ref reader);
     }
 
     [Benchmark]
     public void Read_BE()
     {
         RevrsReader reader = new(_bufferBE);
-        ImmutableSarc sarc = new(ref reader);
+        ImmutableSarc _ = new(ref reader);
     }
 }

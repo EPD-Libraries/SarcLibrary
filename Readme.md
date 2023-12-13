@@ -27,8 +27,8 @@ sarc.Write(ms);
 | Read TitleBG (143MB. LE)                | 24.27 ms |    140 MB |
 | Read TitleBG (75MB, BE)                 | 29.16 ms |     74 MB |
 |                                         |          |           |
-| Write TitleBG (143MB, LE)               | 46.31 ms |    269 MB |
-| Write TitleBG (75MB, BE)                | 38.11 ms |    259 MB |
+| Write TitleBG (143MB, LE)               | 12.43 ms |     66 KB |
+| Write TitleBG (75MB, BE)                |  6.41 ms |     66 KB |
 |                                         |          |           |
 | Read TitleBG (Immutable) (143MB, LE)    | 16.61 ns |         - |
 | Read TitleBG (Immutable) (75MB, BE)     | 16.27 ns |         - |
