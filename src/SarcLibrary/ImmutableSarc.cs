@@ -44,7 +44,7 @@ public unsafe readonly ref struct ImmutableSarc
         if (header.ByteOrderMark is Endianness.Little) {
             // Reverse the buffer back to LE
             // since it's initially read in BE
-            reader.Reverse<SarcHeader, SarcHeader.Reverser>();
+            reader.Reverse<SarcHeader, SarcHeader.Reverser>(0);
             reader.Endianness = Endianness.Little;
         }
 
