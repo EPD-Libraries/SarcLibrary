@@ -1,23 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\..\Icon.png">
+		<None Include="..\..\Icon.png" Link="Assets\Icon.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\..\Readme.md">
+		<None Include="..\..\Readme.md" Link="Assets\Readme.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Revrs" Version="1.0.0" />
 	</ItemGroup>
 
 </Project>
