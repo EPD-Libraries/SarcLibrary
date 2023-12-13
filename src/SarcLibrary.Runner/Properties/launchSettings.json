@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SarcLibrary.Runner": {
+      "commandName": "Project",
+      "commandLineArgs": "\"D:\\bin\\Sarc\\Test.pack\""
+    }
+  }
+}
