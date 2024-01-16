@@ -41,11 +41,11 @@ public unsafe readonly ref struct ImmutableSarc
     public ImmutableSarc(ref RevrsReader reader)
     {
         ref SarcHeader header = ref reader.Read<SarcHeader, SarcHeader.Reverser>();
-        if (header.ByteOrderMark is Endianness.Little) {
+        if (header.ByteOrderMark != reader.Endianness) {
             // Reverse the buffer back to LE
             // since it's initially read in BE
+            reader.Endianness = header.ByteOrderMark;
             reader.Reverse<SarcHeader, SarcHeader.Reverser>(0);
-            reader.Endianness = Endianness.Little;
         }
 
         if (header.Magic != Sarc.SARC_MAGIC) {
@@ -61,6 +61,7 @@ public unsafe readonly ref struct ImmutableSarc
         Data = reader.Data[header.DataOffset..header.FileSize];
 
         Header = header;
+        Header.ByteOrderMark = reader.Endianness;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
