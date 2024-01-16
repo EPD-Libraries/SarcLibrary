@@ -28,11 +28,12 @@ internal class SfatWriter
             SfatNode node = new() {
                 FileNameHash = entry.Value.FileNameHash,
                 FileAttributes = isHashOnly ? 0x0 : 0x01000000 | (nameOffset / 4),
-                DataStartOffset = dataOffset,
-                DataEndOffset = dataOffset += entry.Value.Data.Length.Align(entry.Value.Alignment)
+                DataStartOffset = dataOffset += entry.Value.Data.Length.AlignUp(entry.Value.Alignment),
+                DataEndOffset = dataOffset += entry.Value.Data.Length
             };
 
-            nameOffset += (entry.Name.Length + 1).Align(0x4);
+            nameOffset += entry.Name.Length + 1;
+            nameOffset += nameOffset.AlignUp(0x4);
             writer.Write<SfatNode, SfatNode.Reverser>(node);
         }
     }

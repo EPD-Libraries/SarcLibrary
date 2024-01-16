@@ -84,16 +84,15 @@ public class Sarc : Dictionary<string, byte[]>
         }
 
         int dataOffset = (int)writer.Position;
-        for (int i = 0; i < sorted.Length; i++) {
-            SarcNodeData entry = sorted[i];
-            writer.Write(entry.Value.Data);
-            writer.Align(entry.Value.Alignment);
+        foreach ((var _, var value) in sorted) {
+            writer.Move(value.Data.Length.AlignUp(value.Alignment));
+            writer.Write(value.Data);
         }
 
         SarcHeader header = new() {
             Magic = SARC_MAGIC,
             HeaderSize = 0x14,
-            ByteOrderMark = endianness.Value,
+            ByteOrderMark = Endianness.Big,
             FileSize = (int)writer.Position,
             DataOffset = dataOffset,
             Version = (ushort)Version
