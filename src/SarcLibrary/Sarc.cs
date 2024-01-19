@@ -15,12 +15,12 @@ public class Sarc : Dictionary<string, byte[]>
     /// <summary>
     /// The <see langword="byte-order"/> of the <see cref="Sarc"/>.
     /// </summary>
-    public Endianness Endianness { get; set; }
+    public Endianness Endianness { get; set; } = Endianness.Little;
 
     /// <summary>
     /// The version of the <see cref="Sarc"/>.
     /// </summary>
-    public int Version { get; set; }
+    public int Version { get; set; } = 0x100;
 
     /// <summary>
     /// When <see langword="true"/>, the SFNT (string) section will not be written.
