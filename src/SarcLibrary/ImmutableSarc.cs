@@ -56,6 +56,10 @@ public unsafe readonly ref struct ImmutableSarc
             throw new InvalidDataException("Invalid SARC header!");
         }
 
+        if (header.Version != 0x100) {
+            throw new NotSupportedException($"Unsupported SARC version: '{header.Version}'");
+        }
+
         SfatReader = new SfatReader(ref reader);
         SfntReader = new SfntReader(ref reader, header.DataOffset);
         Data = reader.Data[header.DataOffset..header.FileSize];
