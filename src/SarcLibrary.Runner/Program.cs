@@ -7,15 +7,12 @@ BenchmarkRunner.Run<SarcBenchmarks>();
 
 #else
 
-using Revrs;
 using SarcLibrary;
 
 byte[] buffer = File.ReadAllBytes(args[0]);
-RevrsReader reader = new(buffer);
-ImmutableSarc immutableSarc = new(ref reader);
-Sarc sarc = Sarc.FromImmutable(ref immutableSarc);
+Sarc sarc = Sarc.FromBinary(buffer);
 
-using MemoryStream ms = new();
-sarc.Write(ms);
+using FileStream fs = File.Create(args[1]);
+sarc.Write(fs);
 
 #endif
