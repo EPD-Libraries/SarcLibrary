@@ -20,7 +20,7 @@ public class Sarc : Dictionary<string, byte[]>
     /// <summary>
     /// The version of the <see cref="Sarc"/>.
     /// </summary>
-    public int Version { get; set; } = 0x100;
+    public int Version { get; private set; } = 0x100;
 
     /// <summary>
     /// When <see langword="true"/>, the SFNT (string) section will not be written.
