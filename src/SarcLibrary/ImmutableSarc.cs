@@ -62,7 +62,7 @@ public unsafe readonly ref struct ImmutableSarc
 
         SfatReader = new SfatReader(ref reader);
         SfntReader = new SfntReader(ref reader, header.DataOffset);
-        Data = reader.Data[header.DataOffset..header.FileSize];
+        Data = reader.Data[header.DataOffset..];
 
         Header = header;
         Header.ByteOrderMark = reader.Endianness;
