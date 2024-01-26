@@ -71,7 +71,7 @@ public class SarcAlignment
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int GetBinaryFileAlignment(Span<byte> data)
+    private static int GetBinaryFileAlignment(Span<byte> data)
     {
         if (data.Length <= 0x20) {
             return 1;
@@ -89,7 +89,7 @@ public class SarcAlignment
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int GetCafeBflimAlignment(Span<byte> data)
+    private static int GetCafeBflimAlignment(Span<byte> data)
     {
         if (data.Length <= 0x28 || !data[^0x28..^0x24].SequenceEqual("FLIM"u8)) {
             return 1;
@@ -109,7 +109,7 @@ public class SarcAlignment
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int GCD(int a, int b)
+    private static int GCD(int a, int b)
     {
         while (a != 0 && b != 0) {
             if (a > b) {

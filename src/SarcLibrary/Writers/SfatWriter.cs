@@ -28,7 +28,7 @@ internal class SfatWriter
             SfatNode node = new() {
                 FileNameHash = entry.Value.FileNameHash,
                 FileAttributes = isHashOnly ? 0x0 : 0x01000000 | (nameOffset / 4),
-                DataStartOffset = dataOffset += entry.Value.Data.Length.AlignUp(entry.Value.Alignment),
+                DataStartOffset = dataOffset += dataOffset.AlignUp(entry.Value.Alignment),
                 DataEndOffset = dataOffset += entry.Value.Data.Length
             };
 

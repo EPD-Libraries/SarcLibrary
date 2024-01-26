@@ -83,9 +83,16 @@ public class Sarc : Dictionary<string, byte[]>
             SfntWriter.Write(writer, sorted);
         }
 
+        int sarcAlignment = 1;
+        foreach ((var _, var value) in sorted) {
+            sarcAlignment = SarcAlignment.LCM(sarcAlignment, value.Alignment);
+        }
+
+        writer.Align(sarcAlignment);
+
         int dataOffset = (int)writer.Position;
         foreach ((var _, var value) in sorted) {
-            writer.Move(value.Data.Length.AlignUp(value.Alignment));
+            writer.Align(value.Alignment);
             writer.Write(value.Data);
         }
 
