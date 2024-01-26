@@ -29,9 +29,9 @@ public class SarcAlignment
         { "agllref", 8 }, { "bagllref", 8 }, { "aglshpp", 8 }, { "baglshpp", 8 },
         { "glght", 8 }, { "bglght", 8 }, { "glpbd", 8 }, { "bglpbd", 8 },
         { "glpbm", 8 }, { "bglpbm", 8 }, { "gsdw", 8 }, { "bgsdw", 8 },
-        { "ksky", 8 }, { "bksky", 8 }, { "ofx", -8192 }, { "bofx", -8192 },
+        { "ksky", 8 }, { "bksky", 8 }, { "ofx", 0x2000 }, { "bofx", 0x2000 },
         { "pref", 8 }, { "bpref", 8 }, { "sharc", 0x1000 }, { "sharcb", 0x1000 },
-        { "baglmf", 0x80 }, { "fmd", -8192 }, { "ftx", -8192 }, { "genvres", -8192 },
+        { "baglmf", 0x80 }, { "fmd", 0x2000 }, { "ftx", 0x2000 }, { "genvres", 0x2000 },
         { "gtx", 0x2000 }
     };
 
@@ -126,6 +126,6 @@ public class SarcAlignment
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int LCM(int a, int b)
     {
-        return a / GCD(a, b) * b;
+        return a * b / GCD(a, b);
     }
 }
