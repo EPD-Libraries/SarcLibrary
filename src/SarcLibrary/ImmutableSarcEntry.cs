@@ -3,11 +3,14 @@ using System.Runtime.InteropServices.Marshalling;
 
 namespace SarcLibrary;
 
-public readonly ref struct ImmutableSarcEntry(Span<byte> name, Span<byte> data, uint nameHash)
+public readonly ref struct ImmutableSarcEntry(Span<byte> name, Span<byte> data, int dataStartOffset, int dataEndOffset, uint nameHash)
 {
     private readonly Span<byte> _name = name;
     private readonly Span<byte> _data = data;
     private readonly uint _nameHash = nameHash;
+
+    public readonly int DataStartOffset = dataStartOffset;
+    public readonly int DataEndOffset = dataEndOffset;
 
     public readonly Span<byte> Data {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -31,5 +34,12 @@ public readonly ref struct ImmutableSarcEntry(Span<byte> name, Span<byte> data, 
     {
         name = Name;
         data = Data;
+    }
+
+    public unsafe void Deconstruct(out string name, out int dataStartOffset, out int dataEndOffset)
+    {
+        name = Name;
+        dataStartOffset = DataStartOffset;
+        dataEndOffset = DataEndOffset;
     }
 }

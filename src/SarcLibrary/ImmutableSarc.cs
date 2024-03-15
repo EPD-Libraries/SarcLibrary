@@ -32,6 +32,8 @@ public unsafe readonly ref struct ImmutableSarc
             return new(
                 nameOffset >= 0 ? SfntReader.RawNameData[nameOffset..] : [],
                 Data[node.DataStartOffset..node.DataEndOffset],
+                node.DataStartOffset,
+                node.DataEndOffset,
                 node.FileNameHash
             );
         }
@@ -87,6 +89,8 @@ public unsafe readonly ref struct ImmutableSarc
                 return new(
                     nameOffset >= 0 ? _sarc.SfntReader.RawNameData[nameOffset..] : [],
                     _sarc.Data[node.DataStartOffset..node.DataEndOffset],
+                    node.DataStartOffset,
+                    node.DataEndOffset,
                     node.FileNameHash
                 );
             }
