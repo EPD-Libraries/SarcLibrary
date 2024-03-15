@@ -8,48 +8,34 @@ public class SarcAlignment
 {
     private const int MIN_ALIGNMENT = 0x4;
 
-    private static readonly HashSet<string> _ukingFactoryNames = [
-        "sarc", "bfres", "bcamanim", "batpl, bnfprl", "bplacement",
-        "hks, lua", "bactcapt", "bitemico", "jpg", "bmaptex",
-        "bstftex", "bgdata", "bgsvdata", "hknm2", "bmscdef", "bars",
-        "bxml", "bgparamlist", "bmodellist", "baslist", "baiprog", "bphysics",
-        "bchemical", "bas", "batcllist", "batcl", "baischedule", "bdmgparam",
-        "brgconfiglist", "brgconfig", "brgbw", "bawareness", "bdrop", "bshop",
-        "brecipe", "blod", "bbonectrl", "blifecondition", "bumii", "baniminfo",
-        "byaml", "bassetting", "hkrb", "hkrg", "bphyssb", "hkcl", "hksc",
-        "hktmrb", "brgcon", "esetlist", "bdemo", "bfevfl", "bfevtm"
-    ];
-
-    private static readonly Dictionary<string, int> _alignments = new() {
-        { "aglatex", 8 }, { "baglatex", 8 }, { "aglblm", 8 }, { "baglblm", 8 },
-        { "aglccr", 8 }, { "baglccr", 8 }, { "aglclwd", 8 }, { "baglclwd", 8 },
-        { "aglcube", 8 }, { "baglcube", 8 }, { "agldof", 8 }, { "bagldof", 8 },
-        { "aglenv", 8 }, { "baglenv", 8 }, { "aglenvset", 8 }, { "baglenvset", 8 },
-        { "aglfila", 8 }, { "baglfila", 8 }, { "agllmap", 8 }, { "bagllmap", 8 },
-        { "agllref", 8 }, { "bagllref", 8 }, { "aglshpp", 8 }, { "baglshpp", 8 },
-        { "glght", 8 }, { "bglght", 8 }, { "glpbd", 8 }, { "bglpbd", 8 },
-        { "glpbm", 8 }, { "bglpbm", 8 }, { "gsdw", 8 }, { "bgsdw", 8 },
-        { "ksky", 8 }, { "bksky", 8 }, { "ofx", 0x2000 }, { "bofx", 0x2000 },
-        { "pref", 8 }, { "bpref", 8 }, { "sharc", 0x1000 }, { "sharcb", 0x1000 },
-        { "baglmf", 0x80 }, { "fmd", 0x2000 }, { "ftx", 0x2000 }, { "genvres", 0x2000 },
-        { "gtx", 0x2000 }
-    };
-
-    public static int Estimate(KeyValuePair<string, byte[]> sarcEntry, Endianness endianness, bool legacy)
+    public static int Estimate(KeyValuePair<string, ArraySegment<byte>> sarcEntry, Endianness endianness, bool legacy)
     {
         int result = MIN_ALIGNMENT;
-        string ext = Path.GetExtension(sarcEntry.Key);
+        ReadOnlySpan<char> ext = Path.GetExtension(sarcEntry.Key.AsSpan());
 
         if (ext.Length > 1) {
             ext = ext[1..];
         }
 
-        if (ext is "bffnt") {
-            result = LCM(result, endianness == Endianness.Big ? 0x2000 : 0x1000);
-        }
-        else if (_alignments.TryGetValue(ext, out int extensionMatchedAlignment)) {
-            result = LCM(result, extensionMatchedAlignment);
-        }
+        result = ext switch {
+            "bffnt" => LCM(result, endianness == Endianness.Big ? 0x2000 : 0x1000),
+            "aglatex" or "aglblm" or "aglccr" or
+            "aglclwd" or "aglcube" or "agldof" or
+            "aglenv" or "aglenvset" or "aglfila" or
+            "agllmap" or "agllref" or "aglshpp" or
+            "baglatex" or "baglblm" or "baglccr" or
+            "baglclwd" or "baglcube" or "bagldof" or
+            "baglenv" or "baglenvset" or "baglfila" or
+            "bagllmap" or "bagllref" or "baglshpp" or
+            "bglght" or "bglpbd" or "bglpbm" or
+            "bgsdw" or "bksky" or "bpref" or
+            "glght" or "glpbd" or "glpbm" or
+            "gsdw" or "ksky" or "pref" => LCM(result, 8),
+            "baglmf" => LCM(result, 0x80),
+            "sharc" or "sharcb" => LCM(result, 0x1000),
+            "bofx" or "fmd" or "ftx" or "genvres" or "gtx" or "ofx" => LCM(result, 0x2000),
+            _ => result
+        };
 
         if (!legacy) {
             return result;
@@ -59,7 +45,15 @@ public class SarcAlignment
             result = LCM(result, 0x2000);
         }
 
-        if (!_ukingFactoryNames.Contains(ext)) {
+        if (ext is not ("sarc" or "bfres" or "bcamanim" or "batpl or bnfprl" or "bplacement" or
+            "hks or lua" or "bactcapt" or "bitemico" or "jpg" or "bmaptex" or
+            "bstftex" or "bgdata" or "bgsvdata" or "hknm2" or "bmscdef" or "bars" or
+            "bxml" or "bgparamlist" or "bmodellist" or "baslist" or "baiprog" or "bphysics" or
+            "bchemical" or "bas" or "batcllist" or "batcl" or "baischedule" or "bdmgparam" or
+            "brgconfiglist" or "brgconfig" or "brgbw" or "bawareness" or "bdrop" or "bshop" or
+            "brecipe" or "blod" or "bbonectrl" or "blifecondition" or "bumii" or "baniminfo" or
+            "byaml" or "bassetting" or "hkrb" or "hkrg" or "bphyssb" or "hkcl" or "hksc" or
+            "hktmrb" or "brgcon" or "esetlist" or "bdemo" or "bfevfl" or "bfevtm")) {
             result = LCM(result, GetBinaryFileAlignment(sarcEntry.Value));
 
             if (endianness == Endianness.Big) {
