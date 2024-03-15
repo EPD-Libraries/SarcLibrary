@@ -22,7 +22,7 @@ public class SarcFile : Dictionary<string, byte[]>
 
         Span<byte> sarc = stackalloc byte[4];
         stream.Read(sarc);
-        if (!sarc.SequenceEqual(SarcHelper.SARC)) {
+        if (!sarc.SequenceEqual(SarcHelper._sarc)) {
             throw new InvalidDataException("Invalid SARC magic");
         }
 
@@ -69,11 +69,11 @@ public class SarcFile : Dictionary<string, byte[]>
             Span<byte> stringTableBuffer = reader.ReadBytes((int)(dataOffset - stream.Position)).AsSpan();
             for (int i = 0; i < count; i++) {
                 if (i == count - 1) {
-                    Add(Encoding.UTF8.GetString(stringTableBuffer[nodes[i].StringOffset..]).Replace(SarcHelper.Null, SarcHelper.Empty),
+                    Add(Encoding.UTF8.GetString(stringTableBuffer[nodes[i].StringOffset..]).Replace(SarcHelper.NULL, SarcHelper.EMPTY),
                        reader.ReadBytes(nodes[i].DataEnd - nodes[i].DataStart));
                 }
                 else {
-                    Add(Encoding.UTF8.GetString(stringTableBuffer[nodes[i].StringOffset..nodes[i + 1].StringOffset]).Replace(SarcHelper.Null, SarcHelper.Empty),
+                    Add(Encoding.UTF8.GetString(stringTableBuffer[nodes[i].StringOffset..nodes[i + 1].StringOffset]).Replace(SarcHelper.NULL, SarcHelper.EMPTY),
                        reader.ReadBytes(nodes[i].DataEnd - nodes[i].DataStart));
                     stream.Seek(nodes[i + 1].DataStart - nodes[i].DataEnd, SeekOrigin.Current);
                 }
@@ -138,10 +138,10 @@ public class SarcFile : Dictionary<string, byte[]>
         stream.Seek(0x14, SeekOrigin.Begin);
 
         // Write data nodes (SFAT)
-        writer.Write(SarcHelper.SFAT);
+        writer.Write(SarcHelper._sfat);
         writer.Write(0x0C.AsInt16(Endian));
         writer.Write(Count.AsInt16(Endian));
-        writer.Write(SarcHelper.HashKey.AsUInt32(Endian));
+        writer.Write(SarcHelper.HASH_KEY.AsUInt32(Endian));
 
         Span<int> alignments = stackalloc int[Count];
         int relStringOffset = 0;
@@ -168,7 +168,7 @@ public class SarcFile : Dictionary<string, byte[]>
         }
 
         // Write string table (SFNT)
-        writer.Write(SarcHelper.SFNT);
+        writer.Write(SarcHelper._sfnt);
         writer.Write(0x08.AsInt16(Endian));
         writer.Write((ushort)0x00);
 
@@ -191,7 +191,7 @@ public class SarcFile : Dictionary<string, byte[]>
         int fileSize = (int)stream.Position;
 
         stream.Seek(0, SeekOrigin.Begin);
-        writer.Write(SarcHelper.SARC);
+        writer.Write(SarcHelper._sarc);
         writer.Write(0x14.AsInt16(Endian));
         writer.Write((ushort)Endian);
         writer.Write(fileSize.AsInt32(Endian));
