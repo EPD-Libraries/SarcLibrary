@@ -1,5 +1,5 @@
 ﻿global using SarcNodeData = (string Name, (uint FileNameHash, System.ArraySegment<byte> Data, int Alignment) Value);
-
+using CommunityToolkit.HighPerformance.Buffers;
 using Revrs;
 using SarcLibrary.Structures;
 using SarcLibrary.Writers;
@@ -69,29 +69,31 @@ public class Sarc : Dictionary<string, ArraySegment<byte>>
 
         writer.Move(sizeof(SarcHeader));
 
-        SarcNodeData[] sorted = this
-            .Select(x => (x.Key, Value: (
-                Hash: SfatWriter.GetFileNameHash(x.Key), x.Value,
-                Alignment: SarcAlignment.Estimate(x, endianness.Value, legacy)
-            )))
-            .OrderBy(x => x.Value.Hash)
-            .ToArray();
+        int sarcAlignment = 1;
+        using SpanOwner<SarcNodeData> sorted = SpanOwner<SarcNodeData>.Allocate(Count);
 
-        SfatWriter.Write(writer, sorted, IsHashOnly);
+        int i = -1;
+        foreach (KeyValuePair<string, ArraySegment<byte>> entry in this) {
+            uint hash = SfatWriter.GetFileNameHash(entry.Key);
 
-        if (!IsHashOnly) {
-            SfntWriter.Write(writer, sorted);
+            int alignment = SarcAlignment.Estimate(entry, endianness.Value, legacy);
+            sarcAlignment = SarcAlignment.LCM(sarcAlignment, alignment);
+
+            sorted.Span[++i] = (entry.Key, Value: (hash, entry.Value, alignment));
         }
 
-        int sarcAlignment = 1;
-        foreach ((var _, var value) in sorted) {
-            sarcAlignment = SarcAlignment.LCM(sarcAlignment, value.Alignment);
+        sorted.Span.Sort((SarcNodeData x, SarcNodeData y) => x.Value.FileNameHash.CompareTo(y.Value.FileNameHash));
+
+        SfatWriter.Write(ref writer, sorted.Span, IsHashOnly);
+
+        if (!IsHashOnly) {
+            SfntWriter.Write(ref writer, sorted.Span);
         }
 
         writer.Align(sarcAlignment);
 
         int dataOffset = (int)writer.Position;
-        foreach ((var _, var value) in sorted) {
+        foreach ((var _, var value) in sorted.Span) {
             writer.Align(value.Alignment);
             writer.Write(value.Data);
         }

@@ -8,7 +8,7 @@ internal class SfatWriter
     private const uint HASH_KEY = 0x65;
     private const ushort HEADER_SIZE = 0xC;
 
-    public static void Write(RevrsWriter writer, SarcNodeData[] entries, bool isHashOnly)
+    public static void Write(ref RevrsWriter writer, Span<SarcNodeData> entries, bool isHashOnly)
     {
         SfatHeader header = new() {
             Magic = Sarc.SFAT_MAGIC,
@@ -29,7 +29,7 @@ internal class SfatWriter
                 FileNameHash = entry.Value.FileNameHash,
                 FileAttributes = isHashOnly ? 0x0 : 0x01000000 | (nameOffset / 4),
                 DataStartOffset = dataOffset += dataOffset.AlignUp(entry.Value.Alignment),
-                DataEndOffset = dataOffset += entry.Value.Data.Length
+                DataEndOffset = dataOffset += entry.Value.Data.Count
             };
 
             nameOffset += entry.Name.Length + 1;
