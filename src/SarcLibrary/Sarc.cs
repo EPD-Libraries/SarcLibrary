@@ -40,7 +40,7 @@ public class Sarc : Dictionary<string, byte[]>
     }
 
     /// <summary>
-    /// Create a new <see cref="Msbt"/> object from an <see cref="ImmutableMsbt"/>
+    /// Create a new <see cref="Sarc"/> object from an <see cref="ImmutableSarc"/>
     /// </summary>
     /// <param name="sarc"></param>
     /// <returns></returns>
