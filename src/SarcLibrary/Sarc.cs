@@ -1,4 +1,4 @@
-﻿global using SarcNodeData = (string Name, (uint FileNameHash, byte[] Data, int Alignment) Value);
+﻿global using SarcNodeData = (string Name, (uint FileNameHash, System.ArraySegment<byte> Data, int Alignment) Value);
 
 using Revrs;
 using SarcLibrary.Structures;
@@ -6,7 +6,7 @@ using SarcLibrary.Writers;
 
 namespace SarcLibrary;
 
-public class Sarc : Dictionary<string, byte[]>
+public class Sarc : Dictionary<string, ArraySegment<byte>>
 {
     internal const uint SARC_MAGIC = 0x43524153;
     internal const uint SFAT_MAGIC = 0x54414653;
@@ -28,15 +28,15 @@ public class Sarc : Dictionary<string, byte[]>
     public bool IsHashOnly { get; set; } = false;
 
     /// <summary>
-    /// Reads an <see cref="ImmutableSarc"/> from the input <paramref name="data"/> and copies the files into managed memory.
+    /// Reads an <see cref="ImmutableSarc"/> from the input <paramref name="data"/>.
     /// </summary>
     /// <param name="data"></param>
     /// <returns></returns>
-    public static Sarc FromBinary(Span<byte> data)
+    public static Sarc FromBinary(ArraySegment<byte> data)
     {
         RevrsReader reader = new(data);
         ImmutableSarc sarc = new(ref reader);
-        return FromImmutable(ref sarc);
+        return FromImmutable(ref sarc, data);
     }
 
     /// <summary>
@@ -44,17 +44,17 @@ public class Sarc : Dictionary<string, byte[]>
     /// </summary>
     /// <param name="sarc"></param>
     /// <returns></returns>
-    public static Sarc FromImmutable(ref ImmutableSarc sarc)
+    public static Sarc FromImmutable(ref ImmutableSarc sarc, ArraySegment<byte> data)
     {
-        Sarc managed = [];
-        managed.Endianness = sarc.Header.ByteOrderMark;
-        managed.Version = sarc.Header.Version;
+        Sarc result = [];
+        result.Endianness = sarc.Header.ByteOrderMark;
+        result.Version = sarc.Header.Version;
 
-        foreach ((var fileName, var fileData) in sarc) {
-            managed.Add(fileName, fileData.ToArray());
+        foreach (var (fileName, dataStartOffset, dataEndOffset) in sarc) {
+            result.Add(fileName, data[dataStartOffset..dataEndOffset]);
         }
 
-        return managed;
+        return result;
     }
 
     /// <summary>
