@@ -89,8 +89,13 @@ public class SarcAlignment
             return 1;
         }
 
-        Endianness endianness = data[^0x24..^0x22].Read<Endianness>();
-        return data[^0x8..^0x06].Read<int>(endianness);
+        Span<byte> copy = stackalloc byte[0x4];
+        data[^0x24..^0x22].CopyTo(copy); // endianness
+        data[^0x8..^0x06].CopyTo(copy[2..]);
+
+        return data[0x2..].Read<ushort>(
+            copy[0x0..0x2].Read<Endianness>(Endianness.Big)
+        );
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
