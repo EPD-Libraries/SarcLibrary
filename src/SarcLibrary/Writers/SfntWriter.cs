@@ -16,7 +16,7 @@ public class SfntWriter
         writer.Write<SfntHeader, SfntHeader.Reverser>(header);
 
         for (int i = 0; i < entries.Length; i++) {
-            SarcNodeData entry = entries[i];
+            ref SarcNodeData entry = ref entries[i];
             byte* ptr = Utf8StringMarshaller.ConvertToUnmanaged(entry.Name);
             Span<byte> bytes = new(ptr, entry.Name.Length);
             writer.Write(bytes);
