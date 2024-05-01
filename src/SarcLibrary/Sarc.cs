@@ -8,9 +8,10 @@ namespace SarcLibrary;
 
 public class Sarc : Dictionary<string, ArraySegment<byte>>
 {
-    internal const uint SARC_MAGIC = 0x43524153;
-    internal const uint SFAT_MAGIC = 0x54414653;
-    internal const uint SFNT_MAGIC = 0x544E4653;
+    public const uint SARC_MAGIC = 0x43524153;
+    public const uint SFAT_MAGIC = 0x54414653;
+    public const uint SFNT_MAGIC = 0x544E4653;
+    public const int MIN_ALIGNMENT = 0x4;
 
     /// <summary>
     /// The <see langword="byte-order"/> of the <see cref="Sarc"/>.
@@ -20,7 +21,12 @@ public class Sarc : Dictionary<string, ArraySegment<byte>>
     /// <summary>
     /// The version of the <see cref="Sarc"/>.
     /// </summary>
-    public int Version { get; private set; } = 0x100;
+    public int Version { get; set; } = 0x100;
+
+    /// <summary>
+    /// The minimum guessed alignment of the <see cref="Sarc"/>.
+    /// </summary>
+    public int MinAlignment { get; set; } = MIN_ALIGNMENT;
 
     /// <summary>
     /// When <see langword="true"/>, the SFNT (string) section will not be written.
@@ -51,6 +57,7 @@ public class Sarc : Dictionary<string, ArraySegment<byte>>
         result.Version = sarc.Header.Version;
 
         foreach (var (fileName, dataStartOffset, dataEndOffset) in sarc) {
+            result.MinAlignment = SarcAlignment.GCD(result.MinAlignment, sarc.Header.DataOffset + dataStartOffset);
             result.Add(fileName, data[dataStartOffset..dataEndOffset]);
         }
 
@@ -76,7 +83,7 @@ public class Sarc : Dictionary<string, ArraySegment<byte>>
         foreach (KeyValuePair<string, ArraySegment<byte>> entry in this) {
             uint hash = SfatWriter.GetFileNameHash(entry.Key);
 
-            int alignment = SarcAlignment.Estimate(entry, endianness.Value, legacy);
+            int alignment = SarcAlignment.Estimate(entry, MinAlignment, endianness.Value, legacy);
             sarcAlignment = SarcAlignment.LCM(sarcAlignment, alignment);
 
             sorted.Span[++i] = (entry.Key, Value: (hash, entry.Value, alignment));
