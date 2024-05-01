@@ -7,6 +7,9 @@ namespace SarcLibrary.Writers;
 
 public class SarcAlignment
 {
+    private const uint YAZ0_MAGIC = 0x307A6159;
+    private const uint FLIM_MAGIC = 0x4D494C46;
+
     public static int Estimate(KeyValuePair<string, ArraySegment<byte>> sarcEntry, int minAlignment, Endianness endianness, bool legacy)
     {
         int result = minAlignment;
@@ -85,7 +88,7 @@ public class SarcAlignment
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int GetCafeBflimAlignment(Span<byte> data)
     {
-        if (data.Length <= 0x28 || !data[^0x28..^0x24].SequenceEqual("FLIM"u8)) {
+        if (data.Length <= 0x28 || data[^0x28..^0x24].Read<uint>() != FLIM_MAGIC) {
             return 1;
         }
 
@@ -102,8 +105,8 @@ public class SarcAlignment
     private static bool IsSarcArchive(ReadOnlySpan<byte> data)
     {
         return data.Length > 0 && (
-            data[0x0..0x4].SequenceEqual("SARC"u8) ||
-            data[0x0..0x4].SequenceEqual("Yaz0"u8) && data[0x11..0x15].SequenceEqual("SARC"u8)
+            data[0x0..0x4].Read<uint>() == Sarc.MAGIC ||
+            data[0x0..0x4].Read<uint>() == YAZ0_MAGIC && data[0x11..0x15].Read<uint>() == Sarc.MAGIC
         );
     }
 
