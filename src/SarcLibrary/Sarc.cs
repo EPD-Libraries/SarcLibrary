@@ -8,7 +8,7 @@ namespace SarcLibrary;
 
 public class Sarc : Dictionary<string, ArraySegment<byte>>
 {
-    public const uint SARC_MAGIC = 0x43524153;
+    public const uint MAGIC = 0x43524153;
     public const uint SFAT_MAGIC = 0x54414653;
     public const uint SFNT_MAGIC = 0x544E4653;
     public const int MIN_ALIGNMENT = 0x4;
@@ -106,7 +106,7 @@ public class Sarc : Dictionary<string, ArraySegment<byte>>
         }
 
         SarcHeader header = new() {
-            Magic = SARC_MAGIC,
+            Magic = MAGIC,
             HeaderSize = 0x14,
             ByteOrderMark = Endianness.Big,
             FileSize = (int)writer.Position,

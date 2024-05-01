@@ -51,7 +51,7 @@ public unsafe readonly ref struct ImmutableSarc
             reader.Reverse<SarcHeader, SarcHeader.Reverser>(0);
         }
 
-        if (header.Magic != Sarc.SARC_MAGIC) {
+        if (header.Magic != Sarc.MAGIC) {
             throw new InvalidDataException("Invalid SARC magic!");
         }
 
