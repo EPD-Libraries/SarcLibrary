@@ -1,16 +1,15 @@
 ﻿using Revrs;
 using Revrs.Extensions;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace SarcLibrary.Writers;
 
 public class SarcAlignment
 {
-    private const int MIN_ALIGNMENT = 0x4;
-
-    public static int Estimate(KeyValuePair<string, ArraySegment<byte>> sarcEntry, Endianness endianness, bool legacy)
+    public static int Estimate(KeyValuePair<string, ArraySegment<byte>> sarcEntry, int minAlignment, Endianness endianness, bool legacy)
     {
-        int result = MIN_ALIGNMENT;
+        int result = minAlignment;
         ReadOnlySpan<char> ext = Path.GetExtension(sarcEntry.Key.AsSpan());
 
         if (ext.Length > 1) {
@@ -37,15 +36,11 @@ public class SarcAlignment
             _ => result
         };
 
-        if (!legacy) {
-            return result;
-        }
-
-        if (IsSarcArchive(sarcEntry.Value)) {
+        if (legacy && IsSarcArchive(sarcEntry.Value)) {
             result = LCM(result, 0x2000);
         }
 
-        if (ext is not ("sarc" or "bfres" or "bcamanim" or "batpl or bnfprl" or "bplacement" or
+        if (legacy || ext is not ("sarc" or "bfres" or "bcamanim" or "batpl" or "bnfprl" or "bplacement" or
             "hks or lua" or "bactcapt" or "bitemico" or "jpg" or "bmaptex" or
             "bstftex" or "bgdata" or "bgsvdata" or "hknm2" or "bmscdef" or "bars" or
             "bxml" or "bgparamlist" or "bmodellist" or "baslist" or "baiprog" or "bphysics" or
@@ -71,8 +66,13 @@ public class SarcAlignment
             return 1;
         }
 
-        int fileSize = data[0x1C..0x20].Read<int>(
-            data[0x0C..0x0E].Read<Endianness>()
+        // Make a copy to avoid mutating the
+        // input data when swapping endianness.
+        Span<byte> copy = stackalloc byte[0x14];
+        data[0x0C..0x20].CopyTo(copy);
+
+        int fileSize = copy[0x10..0x14].Read<int>(
+            copy[0x0..0x2].Read<Endianness>(Endianness.Big)
         );
 
         if (fileSize != data.Length) {
@@ -103,18 +103,29 @@ public class SarcAlignment
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int GCD(int a, int b)
+    public static int GCD(int m, int n)
     {
-        while (a != 0 && b != 0) {
-            if (a > b) {
-                a %= b;
+        if (m == 0 || n == 0) {
+            return m | n;
+        }
+
+        int shift = BitOperations.TrailingZeroCount(m | n);
+
+        m >>= BitOperations.TrailingZeroCount(m);
+        n >>= BitOperations.TrailingZeroCount(n);
+
+        while (m != n) {
+            if (m > n) {
+                m -= n;
+                m >>= BitOperations.TrailingZeroCount(m);
             }
             else {
-                b %= a;
+                n -= m;
+                n >>= BitOperations.TrailingZeroCount(n);
             }
         }
 
-        return a | b;
+        return m << shift;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
