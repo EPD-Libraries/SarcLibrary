@@ -65,9 +65,9 @@ public class Sarc : Dictionary<string, ArraySegment<byte>>
         return result;
     }
 
-    public void OpenWrite(string key)
+    public MemoryStream OpenWrite(string key)
     {
-        
+        return new SarcStreamWriter(this, key);
     }
 
     /// <summary>
