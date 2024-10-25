@@ -1,6 +1,7 @@
 ﻿global using SarcNodeData = (string Name, (uint FileNameHash, System.ArraySegment<byte> Data, int Alignment) Value);
 using CommunityToolkit.HighPerformance.Buffers;
 using Revrs;
+using SarcLibrary.IO;
 using SarcLibrary.Structures;
 using SarcLibrary.Writers;
 
@@ -73,7 +74,7 @@ public class Sarc : Dictionary<string, ArraySegment<byte>>
     /// <summary>
     /// Write the <see cref="Sarc"/> to the provided <paramref name="stream"/>.
     /// </summary>
-    /// <param name="stream">The ouput stream to write to.</param>
+    /// <param name="stream">The output stream to write to.</param>
     /// <param name="endianness">The <see langword="byte-order"/> to write the data in (defaults to <see cref="Endianness"/>).</param>
     /// <param name="legacy"></param>
     public unsafe void Write(Stream stream, Endianness? endianness = null, bool legacy = false)
@@ -96,7 +97,9 @@ public class Sarc : Dictionary<string, ArraySegment<byte>>
             sorted.Span[++i] = (entry.Key, Value: (hash, entry.Value, alignment));
         }
 
-        sorted.Span.Sort((SarcNodeData x, SarcNodeData y) => x.Value.FileNameHash.CompareTo(y.Value.FileNameHash));
+        sorted.Span.Sort(
+            (x, y) => x.Value.FileNameHash.CompareTo(y.Value.FileNameHash)
+        );
 
         SfatWriter.Write(ref writer, sorted.Span, IsHashOnly);
 
