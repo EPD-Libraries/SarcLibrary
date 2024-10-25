@@ -6,14 +6,14 @@ using System.Runtime.InteropServices.Marshalling;
 
 namespace SarcLibrary;
 
-public unsafe readonly ref struct ImmutableSarc
+public readonly unsafe ref struct ImmutableSarc
 {
     public readonly SarcHeader Header;
     public readonly SfatReader SfatReader;
     public readonly SfntReader SfntReader;
     public readonly Span<byte> Data;
 
-    public unsafe readonly ImmutableSarcEntry this[string name] {
+    public ImmutableSarcEntry this[string name] {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
             byte* ptr = Utf8StringMarshaller.ConvertToUnmanaged(name);
@@ -23,13 +23,13 @@ public unsafe readonly ref struct ImmutableSarc
         }
     }
 
-    public readonly ImmutableSarcEntry this[ReadOnlySpan<byte> key] {
+    public ImmutableSarcEntry this[ReadOnlySpan<byte> key] {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
             ref SfatNode node = ref SfatReader[key];
             int nameOffset = node.GetNameOffset();
 
-            return new(
+            return new ImmutableSarcEntry(
                 nameOffset >= 0 ? SfntReader.RawNameData[nameOffset..] : [],
                 Data[node.DataStartOffset..node.DataEndOffset],
                 Header.DataOffset,
@@ -87,7 +87,7 @@ public unsafe readonly ref struct ImmutableSarc
                 ref SfatNode node = ref _sarc.SfatReader.Nodes[_index];
                 int nameOffset = node.GetNameOffset();
 
-                return new(
+                return new ImmutableSarcEntry(
                     nameOffset >= 0 ? _sarc.SfntReader.RawNameData[nameOffset..] : [],
                     _sarc.Data[node.DataStartOffset..node.DataEndOffset],
                     _sarc.Header.DataOffset,
@@ -101,11 +101,7 @@ public unsafe readonly ref struct ImmutableSarc
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool MoveNext()
         {
-            if (++_index >= _length) {
-                return false;
-            }
-
-            return true;
+            return ++_index < _length;
         }
     }
 }

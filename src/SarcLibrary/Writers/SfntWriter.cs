@@ -6,7 +6,7 @@ namespace SarcLibrary.Writers;
 
 public class SfntWriter
 {
-    public unsafe static void Write(ref RevrsWriter writer, Span<SarcNodeData> entries)
+    public static unsafe void Write(ref RevrsWriter writer, Span<SarcNodeData> entries)
     {
         SfntHeader header = new() {
             Magic = Sarc.SFNT_MAGIC,

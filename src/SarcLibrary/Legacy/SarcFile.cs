@@ -1,5 +1,6 @@
 ﻿using System.Text;
 
+// ReSharper disable once CheckNamespace
 namespace SarcLibrary;
 
 public enum Endian : ushort { Big = 0xFFFE, Little = 0xFEFF }
@@ -95,18 +96,18 @@ public class SarcFile : Dictionary<string, byte[]>
     public static SarcFile FromBinary(byte[] data)
     {
         using MemoryStream ms = new(data);
-        return new(ms);
+        return new SarcFile(ms);
     }
 
     public static SarcFile FromBinary(string sarcFile)
     {
         using FileStream fs = File.OpenRead(sarcFile);
-        return new(fs);
+        return new SarcFile(fs);
     }
 
     public static SarcFile FromBinary(Stream stream)
     {
-        return new(stream);
+        return new SarcFile(stream);
     }
 
     public byte[] ToBinary()

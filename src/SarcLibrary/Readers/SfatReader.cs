@@ -10,7 +10,7 @@ public readonly ref struct SfatReader
     public readonly SfatHeader Header;
     public readonly Span<SfatNode> Nodes;
 
-    public unsafe readonly ref SfatNode this[string name] {
+    public unsafe ref SfatNode this[string name] {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
             byte* ptr = Utf8StringMarshaller.ConvertToUnmanaged(name);
@@ -20,13 +20,12 @@ public readonly ref struct SfatReader
         }
     }
 
-    public readonly ref SfatNode this[ReadOnlySpan<byte> key] {
+    public ref SfatNode this[ReadOnlySpan<byte> key] {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get {
-            return ref Nodes[
+        get =>
+            ref Nodes[
                 GetIndex(GetHash(key))
             ];
-        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -43,8 +42,8 @@ public readonly ref struct SfatReader
     public uint GetHash(ReadOnlySpan<byte> key)
     {
         uint hash = 0;
-        for (int i = 0; i < key.Length; i++) {
-            hash = (hash * Header.HashKey) + key[i];
+        foreach (byte t in key) {
+            hash = hash * Header.HashKey + t;
         }
 
         return hash;
@@ -52,11 +51,10 @@ public readonly ref struct SfatReader
 
     private int GetIndex(uint hash)
     {
-        int m;
         double l = 0;
         double r = Nodes.Length - 1;
         while (l <= r) {
-            m = (int)Math.Floor((l + r) / 2);
+            int m = (int)Math.Floor((l + r) / 2);
             if (Nodes[m].FileNameHash < hash) {
                 l = m + 1;
             }

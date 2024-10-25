@@ -49,6 +49,7 @@ public class Sarc : Dictionary<string, ArraySegment<byte>>
     /// Create a new <see cref="Sarc"/> object from an <see cref="ImmutableSarc"/>
     /// </summary>
     /// <param name="sarc"></param>
+    /// <param name="data"></param>
     /// <returns></returns>
     public static Sarc FromImmutable(ref ImmutableSarc sarc, ArraySegment<byte> data)
     {
@@ -56,7 +57,7 @@ public class Sarc : Dictionary<string, ArraySegment<byte>>
         result.Endianness = sarc.Header.ByteOrderMark;
         result.Version = sarc.Header.Version;
 
-        foreach (var (fileName, dataStartOffset, dataEndOffset) in sarc) {
+        foreach ((string fileName, int dataStartOffset, int dataEndOffset) in sarc) {
             result.MinAlignment = SarcAlignment.GCD(result.MinAlignment, sarc.Header.DataOffset + dataStartOffset);
             result.Add(fileName, data[dataStartOffset..dataEndOffset]);
         }
@@ -64,11 +65,17 @@ public class Sarc : Dictionary<string, ArraySegment<byte>>
         return result;
     }
 
+    public void OpenWrite(string key)
+    {
+        
+    }
+
     /// <summary>
     /// Write the <see cref="Sarc"/> to the provided <paramref name="stream"/>.
     /// </summary>
     /// <param name="stream">The ouput stream to write to.</param>
     /// <param name="endianness">The <see langword="byte-order"/> to write the data in (defaults to <see cref="Endianness"/>).</param>
+    /// <param name="legacy"></param>
     public unsafe void Write(Stream stream, Endianness? endianness = null, bool legacy = false)
     {
         endianness ??= Endianness;
@@ -100,7 +107,7 @@ public class Sarc : Dictionary<string, ArraySegment<byte>>
         writer.Align(sarcAlignment);
 
         int dataOffset = (int)writer.Position;
-        foreach ((var _, var value) in sorted.Span) {
+        foreach ((string _, (uint FileNameHash, ArraySegment<byte> Data, int Alignment) value) in sorted.Span) {
             writer.Align(value.Alignment);
             writer.Write(value.Data);
         }
