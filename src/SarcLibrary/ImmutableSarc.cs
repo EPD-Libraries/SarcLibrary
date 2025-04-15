@@ -1,8 +1,9 @@
-﻿using Revrs;
-using SarcLibrary.Readers;
-using SarcLibrary.Structures;
+﻿using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.Marshalling;
+using Revrs;
+using SarcLibrary.Readers;
+using SarcLibrary.Structures;
 
 namespace SarcLibrary;
 
@@ -44,10 +45,10 @@ public readonly unsafe ref struct ImmutableSarc
     public ImmutableSarc(ref RevrsReader reader)
     {
         ref SarcHeader header = ref reader.Read<SarcHeader, SarcHeader.Reverser>();
-        if (header.ByteOrderMark != reader.Endianness) {
+        if (header.ByteOrderMark != Endianness.Big) {
             // Reverse the buffer back to LE
             // since it's initially read in BE
-            reader.Endianness = header.ByteOrderMark;
+            reader.Endianness = (Endianness)BinaryPrimitives.ReverseEndianness((ushort)reader.Endianness);
             reader.Reverse<SarcHeader, SarcHeader.Reverser>(0);
         }
 
