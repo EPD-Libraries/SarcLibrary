@@ -4,15 +4,14 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="6.12.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-    <PackageReference Include="xunit" Version="2.7.0" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0"/>
+    <PackageReference Include="xunit" Version="2.7.0"/>
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -24,12 +23,21 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\SarcLibrary\SarcLibrary.csproj" />
+    <Content Include="Data\Test1-BE.sarc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\Test1-LE.sarc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="FluentAssertions" />
-    <Using Include="Xunit" />
+    <ProjectReference Include="..\..\SarcLibrary\SarcLibrary.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="FluentAssertions"/>
+    <Using Include="Xunit"/>
   </ItemGroup>
 
 </Project>
