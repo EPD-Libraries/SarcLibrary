@@ -107,7 +107,7 @@ public class Sarc : Dictionary<string, ArraySegment<byte>>
             SfntWriter.Write(ref writer, sorted.Span);
         }
 
-        writer.Align(sarcAlignment);
+        writer.AlignAtEnd(sarcAlignment);
 
         int dataOffset = (int)writer.Position;
         foreach ((string _, (uint FileNameHash, ArraySegment<byte> Data, int Alignment) value) in sorted.Span) {

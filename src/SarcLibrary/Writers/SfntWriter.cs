@@ -21,7 +21,7 @@ public class SfntWriter
             Span<byte> bytes = new(ptr, entry.Name.Length);
             writer.Write(bytes);
             writer.Write((byte)0x0);
-            writer.Align(0x4);
+            writer.AlignAtEnd(0x4);
         }
     }
 }
