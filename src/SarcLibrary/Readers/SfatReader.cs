@@ -39,11 +39,15 @@ public readonly ref struct SfatReader
         Nodes = reader.ReadSpan<SfatNode, SfatNode.Reverser>(Header.NodeCount);
     }
 
-    public uint GetHash(ReadOnlySpan<byte> key)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public uint GetHash(ReadOnlySpan<byte> key) => GetHash(key, Header.HashKey);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static uint GetHash(ReadOnlySpan<byte> key, uint hashKey)
     {
         uint hash = 0;
         foreach (byte t in key) {
-            hash = hash * Header.HashKey + t;
+            hash = hash * hashKey + t;
         }
 
         return hash;

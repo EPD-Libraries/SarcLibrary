@@ -9,13 +9,10 @@ BenchmarkRunner.Run<SarcBenchmarks>();
 
 using SarcLibrary;
 
-byte[] buffer = File.ReadAllBytes(args[0]);
-Sarc sarc = Sarc.FromBinary(buffer);
+FileStream fs = File.OpenRead(args[0]);
+SarcTools.JumpToEntry(fs, "Event/ResidentEvent.byml", out int size);
 
-using MemoryStream ms = sarc.OpenWrite("Test.txt");
-ms.Write("Test"u8);
-
-using FileStream fs = File.Create(args[1]);
-sarc.Write(fs);
+using FileStream fsout = File.Create("D:\\bin\\Sarc\\output.byml");
+fs.CopyTo(fsout, size);
 
 #endif
