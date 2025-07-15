@@ -33,8 +33,8 @@ public class SarcAlignment
             "bgsdw" or "bksky" or "bpref" or
             "glght" or "glpbd" or "glpbm" or
             "gsdw" or "ksky" or "pref" => LCM(result, 8),
-            "baglmf" => LCM(result, 0x80),
-            "sharc" or "sharcb" => LCM(result, 0x1000),
+            "byml" or "baglmf" => LCM(result, 0x80),
+            "bfres" or "sharc" or "sharcb" => LCM(result, 0x1000),
             "bofx" or "fmd" or "ftx" or "genvres" or "gtx" or "ofx" => LCM(result, 0x2000),
             _ => result
         };
@@ -50,7 +50,7 @@ public class SarcAlignment
             "bchemical" or "bas" or "batcllist" or "batcl" or "baischedule" or "bdmgparam" or
             "brgconfiglist" or "brgconfig" or "brgbw" or "bawareness" or "bdrop" or "bshop" or
             "brecipe" or "blod" or "bbonectrl" or "blifecondition" or "bumii" or "baniminfo" or
-            "byaml" or "bassetting" or "hkrb" or "hkrg" or "bphyssb" or "hkcl" or "hksc" or
+            "byaml" or "byml" or "bassetting" or "hkrb" or "hkrg" or "bphyssb" or "hkcl" or "hksc" or
             "hktmrb" or "brgcon" or "esetlist" or "bdemo" or "bfevfl" or "bfevtm")) {
             result = LCM(result, GetBinaryFileAlignment(sarcEntry.Value));
 
