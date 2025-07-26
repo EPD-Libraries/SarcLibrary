@@ -50,13 +50,12 @@ public readonly unsafe ref struct ImmutableSarc
     public bool TryGet(ReadOnlySpan<byte> key, out ImmutableSarcEntry entry)
     {
         ref SfatNode node = ref SfatReader[key];
-        int nameOffset = node.GetNameOffset();
-
         if (Unsafe.IsNullRef(ref node)) {
             entry = default;
             return false;
         }
 
+        int nameOffset = node.GetNameOffset();
         entry = new ImmutableSarcEntry(
             nameOffset >= 0 ? SfntReader.RawNameData[nameOffset..] : [],
             Data[node.DataStartOffset..node.DataEndOffset],
