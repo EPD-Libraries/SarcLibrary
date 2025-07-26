@@ -41,6 +41,34 @@ public readonly unsafe ref struct ImmutableSarc
         }
     }
 
+    public bool TryGet(string name, out ImmutableSarcEntry entry)
+    {
+        byte* ptr = Utf8StringMarshaller.ConvertToUnmanaged(name);
+        return TryGet(new Span<byte>(ptr, name.Length), out entry);
+    }
+
+    public bool TryGet(ReadOnlySpan<byte> key, out ImmutableSarcEntry entry)
+    {
+        ref SfatNode node = ref SfatReader[key];
+        int nameOffset = node.GetNameOffset();
+
+        if (Unsafe.IsNullRef(ref node)) {
+            entry = default;
+            return false;
+        }
+
+        entry = new ImmutableSarcEntry(
+            nameOffset >= 0 ? SfntReader.RawNameData[nameOffset..] : [],
+            Data[node.DataStartOffset..node.DataEndOffset],
+            Header.DataOffset,
+            node.DataStartOffset,
+            node.DataEndOffset,
+            node.FileNameHash
+        );
+        
+        return true;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ImmutableSarc(ref RevrsReader reader)
     {

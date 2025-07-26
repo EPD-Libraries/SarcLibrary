@@ -22,10 +22,12 @@ public readonly ref struct SfatReader
 
     public ref SfatNode this[ReadOnlySpan<byte> key] {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get =>
-            ref Nodes[
-                GetIndex(GetHash(key))
-            ];
+        get {
+            int index = GetIndex(GetHash(key));
+            return ref index > 0 && Nodes.Length > index
+                ? ref Nodes[index]
+                : ref Unsafe.NullRef<SfatNode>();
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
