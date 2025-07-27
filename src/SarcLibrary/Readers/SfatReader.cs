@@ -24,7 +24,7 @@ public readonly ref struct SfatReader
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
             int index = GetIndex(GetHash(key));
-            return ref index > 0 && Nodes.Length > index
+            return ref index > -1 && Nodes.Length > index
                 ? ref Nodes[index]
                 : ref Unsafe.NullRef<SfatNode>();
         }
