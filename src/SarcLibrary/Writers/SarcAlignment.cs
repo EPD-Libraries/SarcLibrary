@@ -96,7 +96,7 @@ public class SarcAlignment
         data[^0x24..^0x22].CopyTo(copy); // endianness
         data[^0x8..^0x06].CopyTo(copy[2..]);
 
-        return data[0x2..].Read<ushort>(
+        return copy[0x2..].Read<ushort>(
             copy[0x0..0x2].Read<Endianness>(Endianness.Big)
         );
     }
@@ -139,6 +139,6 @@ public class SarcAlignment
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int LCM(int a, int b)
     {
-        return a * b / GCD(a, b);
+        return a / GCD(a, b) * b;
     }
 }
